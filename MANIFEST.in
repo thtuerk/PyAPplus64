@@ -1,0 +1,6 @@
+include examples
+include docs/*
+exclude docs/builddocspdf.sh
+include docs/source/*
+include src/PyAPplus64/py.typed
+

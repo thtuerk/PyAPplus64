@@ -1,0 +1,4 @@
+/dist
+/docs/build/
+/src/PyAPplus64.egg-info
+__pycache__

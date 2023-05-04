@@ -1,0 +1,33 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "PyAPplus64"
+version = "1.0.0"
+authors = [
+  { name="Thomas Tuerk", email="kontakt@thomas-tuerk.de" },
+]
+description = "Verschiedene Hilfsmittel, um mit dem ERP System APplus zu interagieren. Dieses Packet wurde für APplus 6.4 entwickelt, funktioniert vermutlich aber auch mit anderen Versionen."
+readme = "README.md"
+requires-python = ">=3.6"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Other Audience",
+    "Operating System :: Microsoft :: Windows"
+]
+dependencies = [
+  'pyodbc',
+  'PyYAML',
+  'SQLAlchemy',
+  'pandas',
+  'XlsxWriter',
+  'zeep'
+]
+
+[project.urls]
+homepage = "https://www.thomas-tuerk.de/de/pyapplus64"
+repository = "https://git.thomas-tuerk.de/thtuerk/PyAPplus64"
+documentation = "https://www.thomas-tuerk.de/assets/PyAPplus64/html/index.html"
