@@ -39,16 +39,22 @@ aus, dass im Laufe der Zeit weitere Features hinzukommen.
 Aufrufe von SOAP-Methoden. Unsachgemäße Nutzung kann Ihre Daten zerstören. Benutzen Sie 
 `PyAPplus64` daher bitte vorsichtig. 
 
-## Lizenz
+## Installation
 
-`PyAPplus64` wurde unter MIT license veröffentlicht.
+PyAPplus64 wurde auf PyPi veröffentlicht. Es lässt sich daher einfach mittel `pip` installieren
+
+````
+  pip install PyAPplus64
+````
 
 ## Links
 
-- Homepage https://www.thomas-tuerk.de/de/pyapplus64
-- Doku 
-  + PDF https://www.thomas-tuerk.de/assets/PyAPplus64/pyapplus64.pdf
-  + HTML https://www.thomas-tuerk.de/assets/PyAPplus64/html/index.html
-- GIT-Repository https://git.thomas-tuerk.de/thtuerk/PyAPplus64
-- PyPI https://pypi.org/project/PyAPplus64/
-  
+- [PyPi](https://pypi.org/project/PyAPplus64/)
+- Doku [PDF](https://www.thomas-tuerk.de/assets/PyAPplus64/pyapplus64.pdf), [HTML](https://www.thomas-tuerk.de/assets/PyAPplus64/html/index.html)
+- [GIT-Repository](https://git.thomas-tuerk.de/thtuerk/PyAPplus64)
+- [GitHub](https://github.com/thtuerk/PyAPplus64)
+
+## Lizenz / Mitarbeit
+
+Ich habe PyAPplus64 unter MIT License veröffentlicht. Diese Lizenz gibt Ihnen weitreichende Rechte für die Nutzung von PyAPplus64, auch im kommerziellen Kontext. Ich bitte aber dringend darum, Ihre Änderungen, Erweiterungen und Fehlerkorrekturen auch anderen zur Verfügung zu stellen. Dafür können Sie die üblichen Methoden auf Github nutzen oder mir ([Thomas Türk](mailto:kontakt@thomas-tuerk.de)) eine eMail mit den Änderungen schicken.
+
