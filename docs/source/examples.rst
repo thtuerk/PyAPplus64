@@ -13,6 +13,7 @@ das Deploy-, das Test- und das Prod-System. Ein Beispiel ist im Unterverzeichnis
 
 .. literalinclude:: ../../examples/applus-server.yaml
    :language: yaml
+   :lines: 9-
    :linenos:
    
 Damit nicht in jedem Script immer wieder neu die Konfig-Dateien ausgewählt werden müssen, werden die Konfigs für 
@@ -21,6 +22,7 @@ so dass das Config-Verzeichnis und die darin enthaltenen Configs einfach zur Ver
 
 .. literalinclude:: ../../examples/applus_configs.py
    :language: python
+   :lines: 9-
    :linenos:
 
    
@@ -30,7 +32,7 @@ Einfaches Beispiel für lesenden und schreibenden Zugriff auf APplus Datenbank.
 
 .. literalinclude:: ../../examples/check_dokumente.py
    :language: python
-   :lines: 6-
+   :lines: 9-
    :linenos:
 
 
@@ -40,7 +42,7 @@ Sehr einfaches Beispiel zur Erstellung einer Excel-Tabelle aus einer SQL-Abfrage
 
 .. literalinclude:: ../../examples/adhoc_report.py
    :language: python
-   :lines: 7-
+   :lines: 9-
    :linenos:
 
 
@@ -60,7 +62,7 @@ Die GUI wird um die Erzeugung von Excel-Dateien mit Mengenabweichungen gebaut.
 
 .. literalinclude:: ../../examples/mengenabweichung_gui.pyw
    :language: python
-   :lines: 7-
+   :lines: 9-
    :linenos:
 
 ``copy_artikel.py``
@@ -69,5 +71,5 @@ Beispiel, wie Artikel inklusive Arbeitsplan und Stückliste dupliziert werden ka
 
 .. literalinclude:: ../../examples/copy_artikel.py
    :language: python
-   :lines: 21-
+   :lines: 22-
    :linenos:

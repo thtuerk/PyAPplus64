@@ -17,6 +17,7 @@ ausgegeben und das Feld `DOCUMENTS` gelöscht. Das Löschen erfolgt dabei über
 
 .. literalinclude:: ../../examples/check_dokumente.py
    :language: python
+   :lines: 9-
    :linenos:
 
 Man kann alle Python Bibliotheken nutzen. Als Erweiterung wäre es in obigem Script 
@@ -41,6 +42,7 @@ welche Materialen wie oft für Artikel benutzt werden:
 
 .. literalinclude:: ../../examples/adhoc_report.py
    :language: python
+   :lines: 9-
    :linenos:
 
 Dieses kurze Script nutzt Standard-Pandas Methoden zur Erzeugung der Excel-Datei. Allerdings
