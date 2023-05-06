@@ -12,6 +12,7 @@ from .applus import APplusServer
 from . import sql_utils
 import lxml.etree as ET # type: ignore
 from typing import *
+import pathlib
 
 class XMLDefinition:
     """Repräsentation eines XML-Dokuments"""
@@ -80,6 +81,24 @@ class APplusScriptTool:
     def getSystemName(self) -> str:
         return self.client.service.getSystemName()
 
+    def getInstallPath(self) -> str:
+        """
+        Liefert den Installionspfad des Appservers
+        """
+        return self.client.service.getInstallPath()
+
+    def getInstallPathAppServer(self) -> pathlib.Path:
+        """
+        Liefert den Installionspfad des Appservers als PathLib-Path
+        """
+        return pathlib.Path(self.getInstallPath());
+
+    def getInstallPathWebServer(self) -> pathlib.Path:
+        """
+        Liefert den Installionspfad des Webservers als PathLib-Path
+        """
+        return self.getInstallPathAppServer().parents[0].joinpath("WebServer");
+
     def getXMLDefinitionString(self, obj:str, mandant:str="") -> str:
         """
         Läd die XML-Defintion als String vom APPServer. Auch wenn kein XML-Dokument im Dateisystem gefunden wird,
@@ -103,7 +122,7 @@ class APplusScriptTool:
         :type obj: str
         :param mandant: der Mandant, dessen XML-Doku geladen werden soll, wenn "" wird der Standard-Mandant verwendet
         :type mandant: str optional
-        :return: das gefundene und mittels ElementTree geparste XML-Dokument
+        :return: das gefundene und geparste XML-Dokument
         :rtype: ET.Element
         """
         return ET.fromstring(self.getXMLDefinitionString(obj, mandant=mandant))
@@ -118,7 +137,7 @@ class APplusScriptTool:
         :type obj: str
         :param mandant: der Mandant, dessen XML-Doku geladen werden soll, wenn "" wird der Standard-Mandant verwendet
         :type mandant: str optional
-        :return: das gefundene und mittels ElementTree geparste XML-Dokument
+        :return: das gefundene und geparste XML-Dokument
         :rtype: Optional[XMLDefinition]
         """
         e = self.getXMLDefinition(obj, mandant=mandant);
@@ -146,3 +165,21 @@ class APplusScriptTool:
         Liefert den Namen des aktuellen Mandanten
         """
         return self.client.service.getCurrentClientProperty("NAME")
+
+    def getServerInfoString(self) -> str:
+        """
+        Liefert Informationen zum Server als String. Dieser String repräsentiert ein XML Dokument.
+        
+        :return: das XML-Dokument als String
+        :rtype: str 
+        """
+        return self.client.service.getP2plusServerInfo()
+
+    def getServerInfo(self) -> Optional[ET.Element]:
+        """
+        Liefert Informationen zum Server als ein XML Dokument.
+        
+        :return: das gefundene und geparste XML-Dokument
+        :rtype: ET.Element
+        """
+        return ET.fromstring(self.getServerInfoString())

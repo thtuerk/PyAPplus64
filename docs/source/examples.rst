@@ -17,7 +17,7 @@ das Deploy-, das Test- und das Prod-System. Ein Beispiel ist im Unterverzeichnis
    :linenos:
    
 Damit nicht in jedem Script immer wieder neu die Konfig-Dateien ausgewählt werden müssen, werden die Konfigs für 
-das Prod-, Test- und Deploy-System in ``examples/applus_configs.py`` hinterlegt. Diese wird in allen Scripten importiert,
+das Prod-, Test- und Deploy-System in ``examples/applus_configs.py`` hinterlegt. Diese Datei wird in allen Scripten importiert,
 so dass das Config-Verzeichnis und die darin enthaltenen Configs einfach zur Verfügung stehen.
 
 .. literalinclude:: ../../examples/applus_configs.py
@@ -26,6 +26,15 @@ so dass das Config-Verzeichnis und die darin enthaltenen Configs einfach zur Ver
    :linenos:
 
    
+``read_settings.py``
+-----------------------
+Einfaches Beispiel für Auslesen der SysConf und bestimmter Einstellungen.
+
+.. literalinclude:: ../../examples/read_settings.py
+   :language: python
+   :lines: 9-
+   :linenos:
+
 ``check_dokumente.py``
 -----------------------
 Einfaches Beispiel für lesenden und schreibenden Zugriff auf APplus Datenbank.

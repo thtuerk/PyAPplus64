@@ -58,7 +58,7 @@ der für die Umgebung korrekte Mandant automatisch verwendet wird.
 Anbindung eigener Tools
 -----------------------
 
-Ursprünglich wurde `PyAPplus64` für die Anbindung einer APplus-Anpassung geschrieben. Dieses ist 
+Ursprünglich wurde `PyAPplus64` für die Anbindung einer APplus-Anpassung geschrieben. Diese Anpassung ist 
 als Windows-Service auf einem eigenen Rechner installiert und überwacht dort ein bestimmtes Verzeichnis.
 Bei Änderungen an Dateien in diesem Verzeichnis (Hinzufügen, Ändern, Löschen) werden die Dateien verarbeitet
 und die Ergebnisse an APplus gemeldet. Dafür werden DB-Operationen aber auch SOAP-Calls benutzt.

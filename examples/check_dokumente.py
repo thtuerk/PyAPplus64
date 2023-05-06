@@ -10,8 +10,11 @@ import pathlib
 import PyAPplus64
 import applus_configs
 
-def main(confFile : pathlib.Path, docDir:str, updateDB:bool) -> None:
+def main(confFile : pathlib.Path, updateDB:bool, docDir:str|None = None) -> None:
   server = PyAPplus64.applus.applusFromConfigFile(confFile) 
+
+  if docDir is None:
+    	docDir = str(server.scripttool.getInstallPathWebServer().joinpath("DocLib"))
 
   sql = PyAPplus64.sql_utils.SqlStatementSelect("ARTIKEL");
   sql.addFields("ID", "ARTIKEL", "DOCUMENTS");
@@ -28,4 +31,4 @@ def main(confFile : pathlib.Path, docDir:str, updateDB:bool) -> None:
               upd.update();
 
 if __name__ == "__main__":
-  main(applus_configs.serverConfYamlTest, "somedir\\WebServer\\DocLib", False)
+  main(applus_configs.serverConfYamlTest, False)
