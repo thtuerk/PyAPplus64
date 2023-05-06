@@ -13,40 +13,41 @@
 import pathlib
 import PyAPplus64
 import applus_configs
-import lxml.etree as ET # type: ignore
+from typing import Optional, Union
 
-def main(confFile : str|pathlib.Path, user:str|None=None, env:str|None=None) -> None:
-  server = PyAPplus64.applusFromConfigFile(confFile, user=user, env=env) 
 
-  print ("\n\nSysConf Lookups:")
+def main(confFile: Union[str, pathlib.Path], user: Optional[str] = None, env: Optional[str] = None) -> None:
+    server = PyAPplus64.applusFromConfigFile(confFile, user=user, env=env)
 
-  print ("  Default Auftragsart:", server.sysconf.getString("STAMM", "DEFAULTAUFTRAGSART"))
-  print ("  Auftragsarten:") 
-  arten = server.sysconf.getList("STAMM", "AUFTRAGSART", sep='\n')
-  if not arten: arten = []
-  for a in arten:
-    print ("    - " + a)
-  
-  print ("  Firmen-Nr. automatisch vergeben:", server.sysconf.getBoolean("STAMM", "FIRMAAUTOMATIK"))
-  print ("  Anzahl Artikelstellen:", server.sysconf.getInt("STAMM", "ARTKLASSIFNRLAENGE"))
-  
-  print ("\n\nScriptTool:")
+    print("\n\nSysConf Lookups:")
 
-  print ("  CurrentDate:", server.scripttool.getCurrentDate())
-  print ("  CurrentTime:", server.scripttool.getCurrentTime())
-  print ("  CurrentDateTime:", server.scripttool.getCurrentDateTime())
-  print ("  LoginName:", server.scripttool.getLoginName())
-  print ("  UserName:", server.scripttool.getUserName())
-  print ("  UserFullName:", server.scripttool.getUserFullName())
-  print ("  SystemName:", server.scripttool.getSystemName())
-  print ("  Mandant:", server.scripttool.getMandant())
-  print ("  MandantName:", server.scripttool.getMandantName())
-  print ("  InstallPath:", server.scripttool.getInstallPath())
-  print ("  InstallPathAppServer:", server.scripttool.getInstallPathAppServer())
-  print ("  InstallPathWebServer:", server.scripttool.getInstallPathWebServer())
-  print ("  ServerInfo - Version:", server.scripttool.getServerInfo().find("version").text)
+    print("  Default Auftragsart:", server.sysconf.getString("STAMM", "DEFAULTAUFTRAGSART"))
+    print("  Auftragsarten:")
+    arten = server.sysconf.getList("STAMM", "AUFTRAGSART", sep='\n')
+    if not arten:
+        arten = []
+    for a in arten:
+        print("    - " + a)
 
-  
+    print("  Firmen-Nr. automatisch vergeben:", server.sysconf.getBoolean("STAMM", "FIRMAAUTOMATIK"))
+    print("  Anzahl Artikelstellen:", server.sysconf.getInt("STAMM", "ARTKLASSIFNRLAENGE"))
+
+    print("\n\nScriptTool:")
+
+    print("  CurrentDate:", server.scripttool.getCurrentDate())
+    print("  CurrentTime:", server.scripttool.getCurrentTime())
+    print("  CurrentDateTime:", server.scripttool.getCurrentDateTime())
+    print("  LoginName:", server.scripttool.getLoginName())
+    print("  UserName:", server.scripttool.getUserName())
+    print("  UserFullName:", server.scripttool.getUserFullName())
+    print("  SystemName:", server.scripttool.getSystemName())
+    print("  Mandant:", server.scripttool.getMandant())
+    print("  MandantName:", server.scripttool.getMandantName())
+    print("  InstallPath:", server.scripttool.getInstallPath())
+    print("  InstallPathAppServer:", server.scripttool.getInstallPathAppServer())
+    print("  InstallPathWebServer:", server.scripttool.getInstallPathWebServer())
+    print("  ServerInfo - Version:", server.scripttool.getServerInfo().find("version").text)
+
 
 if __name__ == "__main__":
-  main(applus_configs.serverConfYamlTest)
+    main(applus_configs.serverConfYamlTest)

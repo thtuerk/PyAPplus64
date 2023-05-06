@@ -21,12 +21,12 @@ author = 'Thomas Tuerk'
 extensions = [
     'sphinx.ext.duration',
     'sphinx.ext.doctest',
-    'sphinx.ext.autodoc',    
+    'sphinx.ext.autodoc',
     'sphinx.ext.autosummary',
 ]
 
 templates_path = ['_templates']
-exclude_patterns = [] # type: ignore
+exclude_patterns = []  # type: ignore
 
 language = 'de'
 

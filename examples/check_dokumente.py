@@ -9,26 +9,29 @@
 import pathlib
 import PyAPplus64
 import applus_configs
+from typing import Optional
 
-def main(confFile : pathlib.Path, updateDB:bool, docDir:str|None = None) -> None:
-  server = PyAPplus64.applus.applusFromConfigFile(confFile) 
 
-  if docDir is None:
-    	docDir = str(server.scripttool.getInstallPathWebServer().joinpath("DocLib"))
+def main(confFile: pathlib.Path, updateDB: bool, docDir: Optional[str] = None) -> None:
+    server = PyAPplus64.applus.applusFromConfigFile(confFile)
 
-  sql = PyAPplus64.sql_utils.SqlStatementSelect("ARTIKEL");
-  sql.addFields("ID", "ARTIKEL", "DOCUMENTS");
-  sql.where.addConditionFieldStringNotEmpty("DOCUMENTS");
+    if docDir is None:
+        docDir = str(server.scripttool.getInstallPathWebServer().joinpath("DocLib"))
 
-  for row in server.dbQueryAll(sql):
-    doc = pathlib.Path(docDir + row.DOCUMENTS);
-    if not doc.exists():
-        print("Bild '{}' für Artikel '{}' nicht gefunden".format(doc, row.ARTIKEL))
-        
-        if updateDB:
-              upd = server.mkUseXMLRowUpdate("ARTIKEL", row.ID);
-              upd.addField("DOCUMENTS", None);
-              upd.update();
+    sql = PyAPplus64.sql_utils.SqlStatementSelect("ARTIKEL")
+    sql.addFields("ID", "ARTIKEL", "DOCUMENTS")
+    sql.where.addConditionFieldStringNotEmpty("DOCUMENTS")
+
+    for row in server.dbQueryAll(sql):
+        doc = pathlib.Path(docDir + row.DOCUMENTS)
+        if not doc.exists():
+            print("Bild '{}' für Artikel '{}' nicht gefunden".format(doc, row.ARTIKEL))
+
+            if updateDB:
+                upd = server.mkUseXMLRowUpdate("ARTIKEL", row.ID)
+                upd.addField("DOCUMENTS", None)
+                upd.update()
+
 
 if __name__ == "__main__":
-  main(applus_configs.serverConfYamlTest, False)
+    main(applus_configs.serverConfYamlTest, False)

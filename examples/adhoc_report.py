@@ -10,10 +10,11 @@ import PyAPplus64
 import applus_configs
 import pathlib
 
-def main(confFile : pathlib.Path, outfile : str) -> None:
-    server = PyAPplus64.applus.applusFromConfigFile(confFile) 
 
-    # Einfache SQL-Anfrage 
+def main(confFile: pathlib.Path, outfile: str) -> None:
+    server = PyAPplus64.applus.applusFromConfigFile(confFile)
+
+    # Einfache SQL-Anfrage
     sql1 = ("select Material, count(*) as Anzahl from ARTIKEL "
             "group by MATERIAL having MATERIAL is not null "
             "order by Anzahl desc")
@@ -21,7 +22,7 @@ def main(confFile : pathlib.Path, outfile : str) -> None:
 
     # Sql Select-Statements können auch über SqlStatementSelect zusammengebaut
     # werden. Die ist bei vielen, komplizierten Bedingungen teilweise hilfreich.
-    sql2 = PyAPplus64.SqlStatementSelect("ARTIKEL")        
+    sql2 = PyAPplus64.SqlStatementSelect("ARTIKEL")
     sql2.addFields("Material", "count(*) as Anzahl")
     sql2.addGroupBy("MATERIAL")
     sql2.having.addConditionFieldIsNotNull("MATERIAL")

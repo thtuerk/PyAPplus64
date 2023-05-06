@@ -14,4 +14,3 @@ configdir = basedir.joinpath("config")
 serverConfYamlDeploy = configdir.joinpath("applus-server-deploy.yaml")
 serverConfYamlTest = configdir.joinpath("applus-server-test.yaml")
 serverConfYamlProd = configdir.joinpath("applus-server-prod.yaml")
-

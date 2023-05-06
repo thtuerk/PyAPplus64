@@ -6,13 +6,12 @@
 # license that can be found in the LICENSE file or at
 # https://opensource.org/licenses/MIT.
 
-#-*- coding: utf-8 -*-
-
 import pathlib
 import datetime
-from typing import *
+from typing import Set, Union
 
-def checkDirExists(dir : Union[str, pathlib.Path]) -> pathlib.Path:    
+
+def checkDirExists(dir: Union[str, pathlib.Path]) -> pathlib.Path:
     """Prüft, ob ein Verzeichnis existiert. Ist dies nicht möglich, wird eine Exception geworfen.
 
     :param dir: das Verzeichnis
@@ -26,19 +25,19 @@ def checkDirExists(dir : Union[str, pathlib.Path]) -> pathlib.Path:
 
     dir = dir.resolve()
     if not (dir.exists()):
-        raise Exception("Verzeichnis '" + str(dir) + "' nicht gefunden");
-        
+        raise Exception("Verzeichnis '" + str(dir) + "' nicht gefunden")
+
     if not (dir.is_dir()):
-        raise Exception("'" + str(dir) + "' ist kein Verzeichnis");
-    return dir;
+        raise Exception("'" + str(dir) + "' ist kein Verzeichnis")
+    return dir
 
 
-def formatDateTimeForAPplus(v : Union[datetime.datetime, datetime.date, datetime.time]) -> str:
+def formatDateTimeForAPplus(v: Union[datetime.datetime, datetime.date, datetime.time]) -> str:
     """Formatiert ein Datum oder eine Uhrzeit für APplus"""
-    if (v == None):
-        return "";
+    if v is None:
+        return ""
     elif isinstance(v, str):
-        return v;
+        return v
     elif isinstance(v, datetime.datetime):
         return v.strftime("%Y-%m-%d %H:%M:%S.%f")[:-3]
     elif isinstance(v, datetime.date):
@@ -47,10 +46,11 @@ def formatDateTimeForAPplus(v : Union[datetime.datetime, datetime.date, datetime
         return v.strftime("%H:%M:%S.%f")[:-3]
     else:
         return str(v)
-   
-def containsOnlyAllowedChars(charset : Set[str], s : str) -> bool:
+
+
+def containsOnlyAllowedChars(charset: Set[str], s: str) -> bool:
     """Enthält ein String nur erlaubte Zeichen?"""
     for c in s:
-        if not (c in charset): 
+        if not (c in charset):
             return False
     return True
