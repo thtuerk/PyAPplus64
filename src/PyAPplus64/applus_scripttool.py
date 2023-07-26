@@ -57,7 +57,7 @@ class APplusScriptTool:
     """
 
     def __init__(self, server: APplusServer) -> None:
-        self.client = server.getClient("p2script", "ScriptTool")
+        self.client = server.getAppClient("p2script", "ScriptTool")
 
     def getCurrentDate(self) -> str:
         return self.client.service.getCurrentDate()

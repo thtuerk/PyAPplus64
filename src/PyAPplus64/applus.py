@@ -35,14 +35,13 @@ class APplusServer:
     """
     def __init__(self,
                  db_settings: applus_db.APplusDBSettings,
-                 server_settings: applus_server.APplusAppServerSettings,
-                 web_settings: applus_server.APplusWebServerSettings):
+                 server_settings: applus_server.APplusServerSettings):
 
         self.db_settings: applus_db.APplusDBSettings = db_settings
         """Die Einstellungen für die Datenbankverbindung"""
 
-        self.web_settings: applus_server.APplusWebServerSettings = web_settings
-        """Die Einstellungen für die Datenbankverbindung"""
+        self.server_settings : applus_server.APplusServerSettings = server_settings
+        """Einstellung für die Verbindung zum APP- und Webserver"""
 
         self.db_conn = db_settings.connect()
         """
@@ -60,9 +59,9 @@ class APplusServer:
         self.scripttool: applus_scripttool.APplusScriptTool = applus_scripttool.APplusScriptTool(self)
         """erlaubt den einfachen Zugriff auf Funktionen des ScriptTools"""
 
-        self.client_table = self.server_conn.getClient("p2core", "Table")
-        self.client_xml = self.server_conn.getClient("p2core", "XML")
-        self.client_nummer = self.server_conn.getClient("p2system", "Nummer")
+        self.client_table = self.server_conn.getAppClient("p2core", "Table")
+        self.client_xml = self.server_conn.getAppClient("p2core", "XML")
+        self.client_nummer = self.server_conn.getAppClient("p2system", "Nummer")
 
     def reconnectDB(self) -> None:
         try:
@@ -130,9 +129,9 @@ class APplusServer:
         c = self.dbQuerySingleValue(sql, table)
         return (c > 0)
 
-    def getClient(self, package: str, name: str) -> Client:
-        """Erzeugt einen zeep - Client.
-           Mittels dieses Clients kann die WSDL Schnittstelle angesprochen werden.
+    def getAppClient(self, package: str, name: str) -> Client:
+        """Erzeugt einen zeep - Client für den APP-Server.
+           Mittels dieses Clients kann eines WSDL Schnittstelle des APP-Servers angesprochen werden.
            Wird als *package* "p2core" und als *name* "Table" verwendet und der
            resultierende client "client" genannt, dann kann
            z.B. mittels "client.service.getCompleteSQL(sql)" vom AppServer ein Vervollständigen
@@ -145,7 +144,20 @@ class APplusServer:
            :return: den Client
            :rtype: Client
            """
-        return self.server_conn.getClient(package, name)
+        return self.server_conn.getAppClient(package, name)
+
+    def getWebClient(self, url: str) -> Client:
+        """Erzeugt einen zeep - Client für den Web-Server.
+           Mittels dieses Clients kann die von einer ASMX-Seite zur Verfügung gestellte Schnittstelle angesprochen werden.
+           Als parameter wird die relative URL der ASMX-Seite erwartet. Die Base-URL automatisch ergänzt.
+           Ein Beispiel für eine solche relative URL ist "masterdata/artikel.asmx".
+
+           :param url: die relative URL der ASMX Seite, z.B. "masterdata/artikel.asmx"
+           :type package: str
+           :return: den Client
+           :rtype: Client
+           """
+        return self.server_conn.getWebClient(url)
 
     def getTableFields(self, table: str, isComputed: Optional[bool] = None) -> Set[str]:
         """
@@ -220,10 +232,10 @@ class APplusServer:
         return self.client_nummer.service.nextNumber(obj)
 
     def makeWebLink(self, base: str, **kwargs: Any) -> str:
-        if not self.web_settings.baseurl:
+        if not self.server_settings.webserver:
             raise Exception("keine Webserver-BaseURL gesetzt")
 
-        url = str(self.web_settings.baseurl) + base
+        url = str(self.server_settings.webserver) + base
         firstArg = True
         for arg, argv in kwargs.items():
             if not (argv is None):
@@ -251,20 +263,21 @@ def applusFromConfigDict(yamlDict: Dict[str, Any], user: Optional[str] = None, e
         user = yamlDict["appserver"]["user"]
     if env is None or env == '':
         env = yamlDict["appserver"]["env"]
-    app_server = applus_server.APplusAppServerSettings(
+    server_settings = applus_server.APplusServerSettings(
+        webserver=yamlDict.get("webserver", {}).get("baseurl", None),
         appserver=yamlDict["appserver"]["server"],
         appserverPort=yamlDict["appserver"]["port"],
         user=user,  # type: ignore
-        env=env)
-    web_server = applus_server.APplusWebServerSettings(
-        baseurl=yamlDict.get("webserver", {}).get("baseurl", None)
-    )
+        env=env,
+        webserverUser=yamlDict.get("webserver", {}).get("user", None),
+        webserverUserDomain=yamlDict.get("webserver", {}).get("userDomain", None),
+        webserverPassword=yamlDict.get("webserver", {}).get("password", None))
     dbparams = applus_db.APplusDBSettings(
         server=yamlDict["dbserver"]["server"],
         database=yamlDict["dbserver"]["db"],
         user=yamlDict["dbserver"]["user"],
         password=yamlDict["dbserver"]["password"])
-    return APplusServer(dbparams, app_server, web_server)
+    return APplusServer(dbparams, server_settings)
 
 
 def applusFromConfigFile(yamlfile: 'FileDescriptorOrPath',

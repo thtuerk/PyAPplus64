@@ -16,7 +16,10 @@ appserver : {
   env  : "default-umgebung" # hier wirklich Umgebung, nicht Mandant verwenden
 }
 webserver : {
-  baseurl : "http://some-server/APplusProd6/"
+  baseurl : "http://some-server/APplusProd6/",
+  user : null, # oft "ASOL.Projects", wenn nicht gesetzt, wird aktueller Windows-Nutzer verwendet
+  userDomain : null, # Domain für ASOL.PROJECTS
+  password : null # das Passwort
 }
 dbserver : {
   server : "some-server",

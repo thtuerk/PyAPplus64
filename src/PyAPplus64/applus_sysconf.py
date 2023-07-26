@@ -22,7 +22,7 @@ class APplusSysConf:
     """
 
     def __init__(self, server: 'APplusServer') -> None:
-        self.client = server.getClient("p2system", "SysConf")
+        self.client = server.getAppClient("p2system", "SysConf")
         self.cache: Dict[str, type] = {}
 
     def clearCache(self) -> None:

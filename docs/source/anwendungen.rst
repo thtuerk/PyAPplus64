@@ -85,10 +85,10 @@ Zugriff auf die Sysconf möglich::
    print (server.sysconf.getList("STAMM", "EULAENDER"))
 
 Dank der Bibliothek `zeep` ist es auch sehr einfach möglich, auf beliebige SOAP-Methoden zuzugreifen.
-Beispielsweise kann auf die Sys-Config auch händisch, d.h. durch direkten Aufruf einer SOAP-Methode,
-zugegriffen werden::
+Beispielsweise kann auf die Sys-Config auch händisch, d.h. durch direkten Aufruf einer SOAP-Methode
+des APP-Servers zugegriffen werden::
 
-   client = server.server_conn.getClient("p2system", "SysConf");
+   client = server.server_conn.getAppClient("p2system", "SysConf");
    print (client.service.getString("STAMM", "MYLAND"))
 
 

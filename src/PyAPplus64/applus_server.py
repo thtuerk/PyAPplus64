@@ -13,56 +13,66 @@ from zeep.transports import Transport
 from zeep.cache import SqliteCache
 from typing import Optional, Dict
 
+try:
+    from requests_negotiate_sspi import HttpNegotiateAuth
+    auth_negotiate_present = True
+except:
+    auth_negotiate_present = False
 
-class APplusAppServerSettings:
+class APplusServerSettings:
     """
-    Einstellungen, mit welchem APplus App-Server sich verbunden werden soll.
+    Einstellungen, mit welchem APplus App- and Web-Server sich verbunden werden soll.
     """
 
-    def __init__(self, appserver: str, appserverPort: int, user: str, env: Optional[str] = None):
+    def __init__(self, webserver: str, appserver: str, appserverPort: int, user: str, env: Optional[str] = None, webserverUser : Optional[str] = None, webserverUserDomain : Optional[str] = None, webserverPassword : Optional[str] = None):
         self.appserver = appserver
         self.appserverPort = appserverPort
         self.user = user
-        self.env = env
+        self.env = env  
 
-
-class APplusWebServerSettings:
-    """
-    Einstellungen, mit welchem APplus Web-Server sich verbunden werden soll.
-    """
-
-    def __init__(self, baseurl: Optional[str] = None):
-        self.baseurl: Optional[str] = baseurl
+        self.webserver = webserver
+        self.webserverUser = webserverUser
+        self.webserverUserDomain = webserverUserDomain
+        self.webserverPassword = webserverPassword
         try:
-            assert (isinstance(self.baseurl, str))
-            if not (self.baseurl is None) and not (self.baseurl[-1] == "/"):
-                self.baseurl = self.baseurl + "/"
+            if not (self.webserver[-1] == "/"):
+                self.webserver = self.webserver + "/"
         except:
             pass
 
 
 class APplusServerConnection:
-    """Verbindung zu einem APplus APP-Server
+    """Verbindung zu einem APplus APP- und Web-Server
 
     :param settings: die Einstellungen für die Verbindung mit dem APplus Server
     :type settings: APplusAppServerSettings
     """
-    def __init__(self, settings: APplusAppServerSettings) -> None:
+    def __init__(self, settings: APplusServerSettings) -> None:
         userEnv = settings.user
         if (settings.env):
             userEnv += "|" + settings.env
 
-        session = Session()
-        session.auth = HTTPBasicAuth(userEnv, "")
+        sessionApp = Session()
+        sessionApp.auth = HTTPBasicAuth(userEnv, "")
 
-        self.transport = Transport(cache=SqliteCache(), session=session)
-        # self.transport = Transport(session=session)
+        self.transportApp = Transport(cache=SqliteCache(), session=sessionApp)
+        # self.transportApp = Transport(session=sessionApp)
+
+        if auth_negotiate_present:
+            sessionWeb = Session()
+            sessionWeb.auth = HttpNegotiateAuth(username=settings.webserverUser, password=settings.webserverPassword, domain=settings.webserverUserDomain)
+
+            self.transportWeb = Transport(cache=SqliteCache(), session=sessionWeb)
+            # self.transportWeb = Transport(session=sessionWeb)
+        else:
+            self.transportWeb = self.transportApp   # führt vermutlich zu Authorization-Fehlern, diese sind aber zumindest hilfreicher als NULL-Pointer Exceptions
+
         self.clientCache: Dict[str, Client] = {}
         self.settings = settings
         self.appserverUrl = "http://" + settings.appserver + ":" + str(settings.appserverPort) + "/"
 
-    def getClient(self, package: str, name: str) -> Client:
-        """Erzeugt einen zeep - Client.
+    def getAppClient(self, package: str, name: str) -> Client:
+        """Erzeugt einen zeep - Client für den APP-Server.
            Mittels dieses Clients kann die WSDL Schnittstelle angesprochen werden.
            Wird als *package* "p2core" und als *name* "Table" verwendet und der
            resultierende client "client" genannt, dann kann
@@ -76,11 +86,34 @@ class APplusServerConnection:
            :return: den Client
            :rtype: Client
            """
-        url = package+"/"+name
+        cacheKey = "APP:"+package+"/"+name
         try:
-            return self.clientCache[url]
+            return self.clientCache[cacheKey]
         except:
-            fullClientUrl = self.appserverUrl + url + ".jws?wsdl"
-            client = Client(fullClientUrl, transport=self.transport)
-            self.clientCache[url] = client
+            fullClientUrl = self.appserverUrl + package+"/"+name + ".jws?wsdl"
+            client = Client(fullClientUrl, transport=self.transportApp)
+            self.clientCache[cacheKey] = client
+            return client
+
+    def getWebClient(self, url: str) -> Client:
+        """Erzeugt einen zeep - Client für den Web-Server.
+           Mittels dieses Clients kann die von einer ASMX-Seite zur Verfügung gestellte Schnittstelle angesprochen werden.
+           Als parameter wird die relative URL der ASMX-Seite erwartet. Die Base-URL automatisch ergänzt.
+           Ein Beispiel für eine solche relative URL ist "masterdata/artikel.asmx".
+
+           :param url: die relative URL der ASMX Seite, z.B. "masterdata/artikel.asmx"
+           :type package: str
+           :return: den Client
+           :rtype: Client
+           """
+        if not auth_negotiate_present:
+            raise Exception("getWebClient ist nicht verfügbar, da Python-Package requests-negotiate-sspi nicht gefunden wurde")
+
+        cacheKey = "WEB:"+url
+        try:
+            return self.clientCache[cacheKey]
+        except:
+            fullClientUrl = self.settings.webserver + url + "?wsdl"
+            client = Client(fullClientUrl, transport=self.transportWeb)
+            self.clientCache[cacheKey] = client
             return client
