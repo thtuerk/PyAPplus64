@@ -14,8 +14,8 @@ sys.path.append('../src/')
 project = 'PyAPplus64'
 copyright = '2023, Thomas Tuerk'
 author = 'Thomas Tuerk'
-version = '1.1.0'
-release = '1.1.0'
+version = '1.1.1'
+release = '1.1.1'
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration

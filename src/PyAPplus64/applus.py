@@ -7,6 +7,7 @@
 # https://opensource.org/licenses/MIT.
 
 from . import applus_db
+from . import applus_job
 from . import applus_server
 from . import applus_sysconf
 from . import applus_scripttool
@@ -56,12 +57,17 @@ class APplusServer:
         self.sysconf: applus_sysconf.APplusSysConf = applus_sysconf.APplusSysConf(self)
         """erlaubt den Zugriff auf die Sysconfig"""
 
+        self.job: applus_job.APplusJob = applus_job.APplusJob(self)
+        """erlaubt Arbeiten mit Jobs"""
+
         self.scripttool: applus_scripttool.APplusScriptTool = applus_scripttool.APplusScriptTool(self)
         """erlaubt den einfachen Zugriff auf Funktionen des ScriptTools"""
 
         self.client_table = self.server_conn.getAppClient("p2core", "Table")
         self.client_xml = self.server_conn.getAppClient("p2core", "XML")
         self.client_nummer = self.server_conn.getAppClient("p2system", "Nummer")
+        self.client_adaptdb = self.server_conn.getAppClient("p2dbtools", "AdaptDB");
+
 
     def reconnectDB(self) -> None:
         try:
@@ -122,6 +128,12 @@ class APplusServer:
            Dieser Wert oder None wird geliefert."""
         sqlC = self.completeSQL(sql, raw=raw)
         return applus_db.rawQuerySingleValue(self.db_conn, sqlC, *args)
+
+    def dbExecute(self, sql: sql_utils.SqlStatement, *args: Any, raw: bool = False) -> Any:
+        """Führt ein SQL Statement (z.B. update oder insert) aus. Das SQL wird zunächst
+           vom Server angepasst, so dass z.B. Mandanteninformation hinzugefügt werden."""
+        sqlC = self.completeSQL(sql, raw=raw)
+        return applus_db.rawExecute(self.db_conn, sqlC, *args)
 
     def isDBTableKnown(self, table: str) -> bool:
         """Prüft, ob eine Tabelle im System bekannt ist"""
@@ -230,6 +242,24 @@ class APplusServer:
         Erstellt eine neue Nummer für das Objekt und legt diese Nummer zurück.
         """
         return self.client_nummer.service.nextNumber(obj)
+
+    def updateDatabase(self, file : str) -> str:
+        """
+        Führt eine DBAnpass-xml Datei aus.
+        :param file: DB-Anpass Datei, die ausgeführt werden soll
+        :type file: string
+        :return: Infos zur Ausführung
+        :rtype: str
+        """
+        jobId = self.job.createSOAPJob("run DBAnpass " + file);
+        self.client_adaptdb.service.updateDatabase(jobId, "de", file);
+        res = self.job.getResultURLString(jobId)
+        if res is None: res = "FEHLER";
+        if (res == "Folgende Befehle konnten nicht ausgeführt werden:\n\n"):
+            return ""
+        else:
+            return res
+
 
     def makeWebLink(self, base: str, **kwargs: Any) -> str:
         if not self.server_settings.webserver:

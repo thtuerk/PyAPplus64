@@ -20,6 +20,14 @@ PyAPplus64.applus\_db module
    :undoc-members:
    :show-inheritance:
 
+PyAPplus64.applus\_job module
+-----------------------------
+
+.. automodule:: PyAPplus64.applus_job
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 PyAPplus64.applus\_scripttool module
 ------------------------------------
 

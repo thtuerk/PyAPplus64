@@ -108,6 +108,11 @@ def rawQuerySingleValue(cnxn: pyodbc.Connection, sql: SqlStatement, *args: Any) 
         else:
             return None
 
+def rawExecute(cnxn: pyodbc.Connection, sql: SqlStatement, *args: Any) -> Any:
+    """Führt ein SQL Statement direkt aus"""
+    _logSQLWithArgs(sql, *args)
+    with cnxn.cursor() as cursor:
+        return cursor.execute(str(sql), *args)
 
 def getUniqueFieldsOfTable(cnxn: pyodbc.Connection, table: str) -> Dict[str, List[str]]:
     """

@@ -1,5 +1,9 @@
 # Changelog
 
+## 23.08.2023 v1.1.1
+- `APplusJob` für einfachen Zugriff auf `p2core.Job` implementiert
+- Funktion für Ausführung von DB-Anpass Dateien implementiert
+
 ## 27.07.2023 v1.1.0
 - implementiere Zugriff auf ASMX Seiten
   - `getClient` -> `getAppClient` umbenannt

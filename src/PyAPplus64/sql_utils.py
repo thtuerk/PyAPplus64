@@ -392,7 +392,7 @@ class SqlConditionBinComp(SqlConditionPrepared):
     :type value2: SqlValue
     """
     def __init__(self, op: str, value1: SqlValue, value2: SqlValue):
-        if not value1 or not value2:
+        if value1 is None or value2 is None:
             raise Exception("SqlConditionBinComp: value not provided")
 
         cond = "({} {} {})".format(formatSqlValue(value1), op, formatSqlValue(value2))
