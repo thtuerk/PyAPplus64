@@ -46,3 +46,9 @@ Pandas / SqlAlchemy / xlsxwriter
 Sollen Excel-Dateien mit Pandas erzeugt, werden, so muss Pandas, SqlAlchemy und xlsxwriter installiert sein
 (`python -m pip install pandas sqlalchemy xlsxwriter`).
 
+
+PySimpleGUI und andere 
+----------------------
+Einige Beispiele benutzen PySimpleGUI (``python -m pip install pysimplegui``)
+sowie teilweise spezielle Bibliotheken etwa zum Pretty-Printing von SQL (``python -m pip install sqlparse sqlfmt``). Dies
+sind aber Abhängigkeiten von Beispielen, nicht der Bibliothek selbst.

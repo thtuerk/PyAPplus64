@@ -4,10 +4,11 @@ typische Anwendungsfälle
 einfache Admin-Aufgaben
 -----------------------
 
-Selten auftretende Admin-Aufgaben lassen sich gut mittels Python-Scripten automatisieren.
-Es ist sehr einfach möglich, auf die DB, aber auch auf SOAP-Schnittstelle zuzugreifen.
-Ich habe dies vor allem für Wartungsarbeiten an Anpassungstabellen, die für eigene Erweiterungen
-entwickelt wurden, genutzt. 
+Selten auftretende Admin-Aufgaben lassen sich gut mittels Python-Scripten
+automatisieren. Es ist sehr einfach möglich, auf die DB, aber auch auf
+SOAP-Schnittstelle der APP-Serverse zuzugreifen. Zudem ist rudimentärer Zugriff
+auf ASMX-Seiten implementiert. Ich habe dies vor allem für Wartungsarbeiten an
+Anpassungstabellen genutzt, die für eigene Erweiterungen entwickelt wurden. 
 
 Als triviales Beispiel sucht folgender Code alle `DOCUMENTS` Einträge in
 Artikeln (angezeigt als `Bild` in `ArtikelRec.aspx`), für die Datei, auf die
@@ -88,7 +89,7 @@ Dank der Bibliothek `zeep` ist es auch sehr einfach möglich, auf beliebige SOAP
 Beispielsweise kann auf die Sys-Config auch händisch, d.h. durch direkten Aufruf einer SOAP-Methode
 des APP-Servers zugegriffen werden::
 
-   client = server.server_conn.getAppClient("p2system", "SysConf");
+   client = server.getAppClient("p2system", "SysConf");
    print (client.service.getString("STAMM", "MYLAND"))
 
 

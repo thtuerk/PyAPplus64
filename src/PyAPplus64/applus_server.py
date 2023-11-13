@@ -28,7 +28,7 @@ class APplusServerSettings:
         self.appserver = appserver
         self.appserverPort = appserverPort
         self.user = user
-        self.env = env  
+        self.env = env
 
         self.webserver = webserver
         self.webserverUser = webserverUser
@@ -100,6 +100,8 @@ class APplusServerConnection:
            Mittels dieses Clients kann die von einer ASMX-Seite zur Verfügung gestellte Schnittstelle angesprochen werden.
            Als parameter wird die relative URL der ASMX-Seite erwartet. Die Base-URL automatisch ergänzt.
            Ein Beispiel für eine solche relative URL ist "masterdata/artikel.asmx".
+
+           ACHTUNG: Als Umgebung wird die Umgebung des sich anmeldenden Nutzers verwendet. Sowohl Nutzer als auch Umgebung können sich von den für App-Clients verwendeten Werten unterscheiden. Wenn möglich, sollte ein App-Client verwendet werden.
 
            :param url: die relative URL der ASMX Seite, z.B. "masterdata/artikel.asmx"
            :type package: str

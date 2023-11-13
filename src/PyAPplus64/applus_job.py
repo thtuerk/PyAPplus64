@@ -7,6 +7,7 @@
 # https://opensource.org/licenses/MIT.
 
 from typing import TYPE_CHECKING, Optional
+from zeep import Client
 import uuid
 
 if TYPE_CHECKING:
@@ -23,7 +24,14 @@ class APplusJob:
     """
 
     def __init__(self, server: 'APplusServer') -> None:
-        self.client = server.getAppClient("p2core", "Job")
+        self.server = server
+        self._client = None
+
+    @property
+    def client(self) -> Client:
+        if not self._client: 
+          self._client = self.server.getAppClient("p2core", "Job")
+        return self._client
 
     def createSOAPJob(self, bez: str) -> str:
         """

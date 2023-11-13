@@ -48,8 +48,8 @@ def main(confFile: Union[str, pathlib.Path], user: Optional[str] = None, env: Op
     print("  InstallPathWebServer:", server.scripttool.getInstallPathWebServer())
     print("  ServerInfo - Version:", server.scripttool.getServerInfo().find("version").text)
 
-    client = server.getWebClient("masterdata/artikel.asmx")
-    print("ARTIKEL-ASMX Date:", client.service.getServerDate())
+    client = server.getWebClient("dbenv/dbenv.asmx")
+    print("WEB Environment:", client.service.getEnvironment())
 
 if __name__ == "__main__":
     main(applus_configs.serverConfYamlTest)

@@ -21,6 +21,7 @@ APplus. Oft ist es sinnvoll, solche Parameter zu verwenden.
 
 from __future__ import annotations
 import datetime
+import numpy
 from typing import Set, Sequence, Union, Optional, cast, List
 
 
@@ -158,7 +159,7 @@ def formatSqlValue(v: SqlValue) -> str:
     if v is None:
         raise Exception("formatSqlValue: null not supported")
 
-    if isinstance(v, (int, float, SqlField)):
+    if isinstance(v, (int, float, SqlField, numpy.int64)):
         return str(v)
     elif isinstance(v, str):
         return formatSqlValueString(v)

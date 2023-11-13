@@ -18,7 +18,8 @@ das Deploy-, das Test- und das Prod-System. Ein Beispiel ist im Unterverzeichnis
    
 Damit nicht in jedem Script immer wieder neu die Konfig-Dateien ausgewählt werden müssen, werden die Konfigs für 
 das Prod-, Test- und Deploy-System in ``examples/applus_configs.py`` hinterlegt. Diese Datei wird in allen Scripten importiert,
-so dass das Config-Verzeichnis und die darin enthaltenen Configs einfach zur Verfügung stehen.
+so dass das Config-Verzeichnis und die darin enthaltenen Configs einfach zur Verfügung stehen. Zudem werden in dieser Datei auch alle verwendeten 
+Kombinationen aus System und Umgebung hinterlegt. So kann in Scripten auch eine Auswahl des Systems implementiert werden. 
 
 .. literalinclude:: ../../examples/applus_configs.py
    :language: python
@@ -73,6 +74,44 @@ Die GUI wird um die Erzeugung von Excel-Dateien mit Mengenabweichungen gebaut.
    :language: python
    :lines: 9-
    :linenos:
+
+``complete_sql.pyw``
+--------------------
+Beispiel, wie ein einfacher APP-Server Aufruf über eine GUI zur Verfügung gestellt und mittels
+Python-Bibliotheken erweitert werden kann. Zudem wird demonstriert, wie eine Auswahl verschiedenere 
+Systeme und Umgebungen realisiert werden kann.
+
+.. literalinclude:: ../../examples/complete_sql.pyw
+   :language: python
+   :lines: 9-
+   :linenos:
+
+``importViewUDF.py``
+--------------------
+Folgende Scripte erlauben den einfachen Import von DB-Anpass-Dateien, Views und UDFs über den Windows-Explorer.
+Werden Verknüpfungen zu den Scripten ``importViewUDFDeploy.pyw`` und ``importViewUDFTest.pyw`` in ``%appdata%\Microsoft\Windows\SendTo`` abgelegt, 
+so können eine oder mehrerer solcher Dateien mittels _Kontextmenü (Rechtsklick) - Senden an_ an APplus zur Verarbeitung übergeben werden.
+Dabei ist es wichtig, dass sich die Dateien im für den jeweiligen Typ passenden Verzeichnis befinden.
+
+.. literalinclude:: ../../examples/importViewUDF.py
+   :language: python
+   :lines: 9-
+   :linenos:
+
+Wrapper für Deploy-System:
+
+.. literalinclude:: ../../examples/importViewUDFDeploy.pyw
+   :language: python
+   :lines: 9-
+   :linenos:
+
+Wrapper für Test-System:
+
+.. literalinclude:: ../../examples/importViewUDFTest.pyw
+   :language: python
+   :lines: 9-
+   :linenos:
+
 
 ``copy_artikel.py``
 -----------------------

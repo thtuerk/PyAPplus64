@@ -14,6 +14,7 @@ from . import applus_scripttool
 from . import applus_usexml
 from . import sql_utils
 import yaml
+import json
 import urllib.parse
 from zeep import Client
 import pyodbc  # type: ignore
@@ -44,12 +45,8 @@ class APplusServer:
         self.server_settings : applus_server.APplusServerSettings = server_settings
         """Einstellung für die Verbindung zum APP- und Webserver"""
 
-        self.db_conn = db_settings.connect()
-        """
-        Eine pyodbc-Connection zur APplus DB. Diese muss genutzt werden, wenn mehrere Operationen in einer Transaktion
-        genutzt werden sollen. Ansonsten sind die Hilfsmethoden wie :meth:`APplusServer.dbQuery` zu bevorzugen.
-        Diese Connection kann in Verbindung mit den Funktionen aus :mod:`PyAPplus64.applus_db` genutzt werden.
-        """
+        self._db_conn_pool = list()
+        """Eine Liste bestehender DB-Verbindungen"""
 
         self.server_conn: applus_server.APplusServerConnection = applus_server.APplusServerConnection(server_settings)
         """erlaubt den Zugriff auf den AppServer"""
@@ -63,18 +60,61 @@ class APplusServer:
         self.scripttool: applus_scripttool.APplusScriptTool = applus_scripttool.APplusScriptTool(self)
         """erlaubt den einfachen Zugriff auf Funktionen des ScriptTools"""
 
-        self.client_table = self.server_conn.getAppClient("p2core", "Table")
-        self.client_xml = self.server_conn.getAppClient("p2core", "XML")
-        self.client_nummer = self.server_conn.getAppClient("p2system", "Nummer")
-        self.client_adaptdb = self.server_conn.getAppClient("p2dbtools", "AdaptDB");
+        self._client_table = None
+        self._client_xml = None
+        self._client_nummer = None
+        self._client_adaptdb= None
 
+    @property
+    def client_table(self) -> Client:
+        if not self._client_table:
+          self._client_table = self.getAppClient("p2core", "Table")
+        return self._client_table
+
+    @property
+    def client_xml(self) -> Client:
+        if not self._client_xml:
+          self._client_xml = self.getAppClient("p2core", "XML")
+        return self._client_xml
+
+    @property
+    def client_nummer(self) -> Client:
+        if not self._client_nummer:
+          self._client_nummer = self.getAppClient("p2system", "Nummer")
+        return self._client_nummer
+
+    @property
+    def client_adaptdb(self) -> Client:
+        if not self._client_adaptdb:
+          self._client_adaptdb = self.getAppClient("p2dbtools", "AdaptDB")
+        return self._client_adaptdb
+
+
+    def getDBConnection(self) -> pyodbc.Connection:
+        """
+        Liefert eine pyodbc-Connection zur APplus DB. Diese muss genutzt werden, wenn mehrere Operationen in einer Transaktion
+        genutzt werden sollen. Ansonsten sind die Hilfsmethoden wie :meth:`APplusServer.dbQuery` zu bevorzugen.
+        Diese Connection kann in Verbindung mit den Funktionen aus :mod:`PyAPplus64.applus_db` genutzt werden.
+        Die Verbindung sollte nach Benutzung wieder freigegeben oder geschlossen werden.
+        """
+        if self._db_conn_pool:
+            return self._db_conn_pool.pop()
+        else:
+            conn = self.db_settings.connect()
+            self._db_conn_pool.append(conn)
+            return conn
+
+    def releaseDBConnection(self, conn : pyodbc.Connection) -> None:
+        """Gibt eine DB-Connection zur Wiederverwendung frei"""
+        self._db_conn_pool.append(conn)
 
     def reconnectDB(self) -> None:
-        try:
-            self.db_conn.close()
-        except:
-            pass
-        self.db_conn = self.db_settings.connect()
+        for conn in self._db_conn_pool:
+            try:
+                conn.close()
+            except:
+                pass
+        self._db_conn_pool = list()
 
     def completeSQL(self, sql: sql_utils.SqlStatement, raw: bool = False) -> str:
         """
@@ -97,7 +137,11 @@ class APplusServer:
         """Führt eine SQL Query aus und liefert alle Zeilen zurück. Das SQL wird zunächst
            vom Server angepasst, so dass z.B. Mandanteninformation hinzugefügt werden."""
         sqlC = self.completeSQL(sql, raw=raw)
-        return applus_db.rawQueryAll(self.db_conn, sqlC, *args, apply=apply)
+        conn = self.getDBConnection()
+        res = applus_db.rawQueryAll(conn, sqlC, *args, apply=apply)
+        self.releaseDBConnection(conn)
+        return res
+
 
     def dbQuerySingleValues(self, sql: sql_utils.SqlStatement, *args: Any, raw: bool = False) -> Sequence[Any]:
         """Führt eine SQL Query aus, die nur eine Spalte zurückliefern soll."""
@@ -107,12 +151,19 @@ class APplusServer:
         """Führt eine SQL Query aus und führt für jede Zeile die übergeben Funktion aus.
            Das SQL wird zunächst vom Server angepasst, so dass z.B. Mandanteninformation hinzugefügt werden."""
         sqlC = self.completeSQL(sql, raw=raw)
-        applus_db.rawQuery(self.db_conn, sqlC, f, *args)
+        conn = self.getDBConnection()
+        res = applus_db.rawQuery(conn, sqlC, f, *args)
+        self.releaseDBConnection(conn)
+        return res
+
 
     def dbQuerySingleRow(self, sql: sql_utils.SqlStatement, *args: Any, raw: bool = False) -> Optional[pyodbc.Row]:
         """Führt eine SQL Query aus, die maximal eine Zeile zurückliefern soll. Diese Zeile wird geliefert."""
         sqlC = self.completeSQL(sql, raw=raw)
-        return applus_db.rawQuerySingleRow(self.db_conn, sqlC, *args)
+        conn = self.getDBConnection()
+        res = applus_db.rawQuerySingleRow(conn, sqlC, *args)
+        self.releaseDBConnection(conn)
+        return res
 
     def dbQuerySingleRowDict(self, sql: sql_utils.SqlStatement, *args: Any, raw: bool = False) -> Optional[Dict[str, Any]]:
         """Führt eine SQL Query aus, die maximal eine Zeile zurückliefern soll.
@@ -127,13 +178,19 @@ class APplusServer:
         """Führt eine SQL Query aus, die maximal einen Wert zurückliefern soll.
            Dieser Wert oder None wird geliefert."""
         sqlC = self.completeSQL(sql, raw=raw)
-        return applus_db.rawQuerySingleValue(self.db_conn, sqlC, *args)
+        conn = self.getDBConnection()
+        res = applus_db.rawQuerySingleValue(conn, sqlC, *args)
+        self.releaseDBConnection(conn)
+        return res
 
     def dbExecute(self, sql: sql_utils.SqlStatement, *args: Any, raw: bool = False) -> Any:
         """Führt ein SQL Statement (z.B. update oder insert) aus. Das SQL wird zunächst
            vom Server angepasst, so dass z.B. Mandanteninformation hinzugefügt werden."""
         sqlC = self.completeSQL(sql, raw=raw)
-        return applus_db.rawExecute(self.db_conn, sqlC, *args)
+        conn = self.getDBConnection()
+        res = applus_db.rawExecute(conn, sqlC, *args)
+        self.releaseDBConnection(conn)
+        return res
 
     def isDBTableKnown(self, table: str) -> bool:
         """Prüft, ob eine Tabelle im System bekannt ist"""
@@ -163,6 +220,8 @@ class APplusServer:
            Mittels dieses Clients kann die von einer ASMX-Seite zur Verfügung gestellte Schnittstelle angesprochen werden.
            Als parameter wird die relative URL der ASMX-Seite erwartet. Die Base-URL automatisch ergänzt.
            Ein Beispiel für eine solche relative URL ist "masterdata/artikel.asmx".
+
+           ACHTUNG: Als Umgebung wird die Umgebung des sich anmeldenden Nutzers verwendet. Sowohl Nutzer als auch Umgebung können sich von den für App-Clients verwendeten Werten unterscheiden. Wenn möglich, sollte ein App-Client verwendet werden.
 
            :param url: die relative URL der ASMX Seite, z.B. "masterdata/artikel.asmx"
            :type package: str
@@ -197,7 +256,10 @@ class APplusServer:
         Jeder Eintrag enthält eine Liste von Feldern, die zusammen eindeutig sein
         müssen.
         """
-        return applus_db.getUniqueFieldsOfTable(self.db_conn, table)
+        conn = self.getDBConnection()
+        res = applus_db.getUniqueFieldsOfTable(conn, table)
+        self.releaseDBConnection(conn)
+        return res
 
     def useXML(self, xml: str) -> Any:
         """Ruft ``p2core.xml.usexml`` auf. Wird meist durch ein ``UseXMLRow-Objekt`` aufgerufen."""
@@ -261,6 +323,33 @@ class APplusServer:
             return res
 
 
+    def importUdfsAndViews(self, environment : str, views : [str] = [], udfs : [str] = []) -> str:
+        """
+        Importiert bestimmte  Views und UDFs
+        :param environment: die Umgebung, in die Importiert werden soll
+        :type environment: string
+        :param views: Views, die importiert werden sollen
+        :type views: [string]
+        :param udfs: Views, die importiert werden sollen
+        :type udfs: [string]
+        :return: Infos zur Ausführung
+        :rtype: str
+        """
+        lbl="";
+        files=[];
+        for v in views:
+            files.append({"type" : 1, "name" : v})
+        for u in udfs:
+            files.append({"type" : 0, "name" : u})
+
+
+        jobId = self.job.createSOAPJob("importing UDFs and Views");
+        self.client_adaptdb.service.importUdfsAndViews(jobId, environment, False, json.dumps(files), "de");
+        res = self.job.getResultURLString(jobId)
+        if res is None: res = "FEHLER";
+        return res
+
+
     def makeWebLink(self, base: str, **kwargs: Any) -> str:
         if not self.server_settings.webserver:
             raise Exception("keine Webserver-BaseURL gesetzt")
@@ -286,6 +375,14 @@ class APplusServer:
     def makeWebLinkBauftrag(self, **kwargs: Any) -> str:
         return self.makeWebLink("wp/bauftragRec.aspx", **kwargs)
 
+    def makeWebLinkAuftrag(self, **kwargs: Any) -> str:
+        return self.makeWebLink("sales/auftragRec.aspx", **kwargs)
+
+    def makeWebLinkVKRahmen(self, **kwargs: Any) -> str:
+        return self.makeWebLink("sales/vkrahmenRec.aspx", **kwargs)
+
+    def makeWebLinkWarenaugang(self, **kwargs: Any) -> str:
+        return self.makeWebLink("sales/warenausgangRec.aspx", **kwargs)
 
 def applusFromConfigDict(yamlDict: Dict[str, Any], user: Optional[str] = None, env: Optional[str] = None) -> APplusServer:
     """Läd Einstellungen aus einer Config und erzeugt daraus ein APplus-Objekt"""
@@ -324,3 +421,39 @@ def applusFromConfig(yamlString: str, user: Optional[str] = None, env: Optional[
     """Läd Einstellungen aus einer Config-Datei und erzeugt daraus ein APplus-Objekt"""
     yamlDict = yaml.safe_load(yamlString)
     return applusFromConfigDict(yamlDict, user=user, env=env)
+
+
+class APplusServerConfigDescription:
+    """
+    Beschreibung einer Configuration bestehend aus Config-Datei, Nutzer und Umgebung.
+
+    :param descr: Beschreibung als String, nur für Ausgabe gedacht
+    :type descr: str
+
+    :param yamlfile: die Datei
+    :type yamlfile: 'FileDescriptorOrPath'
+
+    :param user: der Nutzer
+    :type user: Optional[str]
+
+    :param env: die Umgebung
+    :type env: Optional[str]
+    """
+    def __init__(self,
+                 descr: str,
+                 yamlfile: 'FileDescriptorOrPath',
+                 user:Optional[str] = None,
+                 env:Optional[str] = None):
+        self.descr = descr
+        self.yamlfile = yamlfile
+        self.user = user
+        self.env = env
+
+    def __str__(self) -> str:
+        return self.descr
+
+    def connect(self) -> APplusServer:
+        return applusFromConfigFile(self.yamlfile, user=self.user, env=self.env)
+
+
+

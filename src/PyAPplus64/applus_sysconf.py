@@ -7,6 +7,7 @@
 # https://opensource.org/licenses/MIT.
 
 from typing import TYPE_CHECKING, Optional, Dict, Any, Callable, Sequence
+from zeep import Client
 
 if TYPE_CHECKING:
     from .applus import APplusServer
@@ -22,8 +23,16 @@ class APplusSysConf:
     """
 
     def __init__(self, server: 'APplusServer') -> None:
-        self.client = server.getAppClient("p2system", "SysConf")
         self.cache: Dict[str, type] = {}
+        self.server = server
+        self._client = None
+
+    @property
+    def client(self) -> Client:
+        if not self._client: 
+          self._client = self.server.getAppClient("p2system", "SysConf")
+        return self._client
+
 
     def clearCache(self) -> None:
         self.cache = {}

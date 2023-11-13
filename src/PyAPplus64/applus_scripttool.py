@@ -10,6 +10,7 @@ from .applus import APplusServer
 from . import sql_utils
 import lxml.etree as ET  # type: ignore
 from typing import Optional, Tuple, Set
+from zeep import Client
 import pathlib
 
 
@@ -57,7 +58,14 @@ class APplusScriptTool:
     """
 
     def __init__(self, server: APplusServer) -> None:
-        self.client = server.getAppClient("p2script", "ScriptTool")
+        self.server = server
+        self._client = None
+
+    @property
+    def client(self) -> Client:
+        if not self._client: 
+          self._client = self.server.getAppClient("p2script", "ScriptTool")
+        return self._client
 
     def getCurrentDate(self) -> str:
         return self.client.service.getCurrentDate()
@@ -181,3 +189,18 @@ class APplusScriptTool:
         :rtype: ET.Element
         """
         return ET.fromstring(self.getServerInfoString())
+
+    def getAllEnvironments(self) -> [str]:
+        """
+        Liefert alle Umgebungen
+
+        :return: die gefundenen Umgebungen
+        :rtype: [str]
+        """
+                
+        envs = []
+        envString = self.client.service.getAllEnvironmentsInMasterDatabase()
+        for e in envString.split(","):
+            envs.append(e.split(":")[0])
+        return envs
+
